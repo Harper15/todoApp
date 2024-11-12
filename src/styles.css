@@ -1,0 +1,323 @@
+:root {
+  --primary-color: rgb(0, 63, 95);
+  --secondary-color: rgb(23, 122, 171);
+  --background-color: rgb(16, 16, 16);
+  --background2-color: rgb(32, 32, 32);
+  --tertiary-color: rgb(64, 64, 64);
+  --priority-1-color: rgb(255, 0, 0);
+  --priority-2-color: rgb(255, 242, 0);
+  --priority-3-color: rgb(0, 0, 255);
+  --priority-4-color: rgb(112, 112, 112);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  background-color: var(--background-color);
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+div.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  width: 20vw;
+  padding-top: 20px;
+  background-color: var(--background2-color);
+  border-radius: 5px;
+}
+
+div.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+}
+
+div.sidebar h3 {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0 10px 20px;
+  margin: 0;
+  background-color: var(--background2-color);
+}
+
+div.sidebar h3.inbox:hover {
+  cursor: pointer;
+  background-color: var(--tertiary-color);
+}
+
+div.project-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+div.project-title p {
+  display: flex;
+  font-size: 1.5em;
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
+  margin-right: 15px;
+}
+
+div.project-title p:hover {
+  cursor: pointer;
+  color: var(--secondary-color);
+}
+
+div.sidebar ul {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+div.sidebar ul li {
+  display: flex;
+  padding: 10px 0px 10px 40px;
+  cursor: pointer;
+}
+
+div.sidebar ul li:hover {
+  background-color: var(--tertiary-color);
+}
+
+div.main {
+  display: flex;
+  width: 100%;
+}
+
+div.project {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 80vw;
+  padding: 0;
+}
+
+div.project-header {
+  display: flex;
+  height: 8vh;
+  width: 100%;
+  padding: 20px;
+  background-color: var(--background-color);
+}
+
+div.project-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+
+div.project-info h2 {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+div.project-info p {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+div.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 90vh;
+  width: 78vw;
+  padding: 1vw;
+  background-color: var(--background-color);
+}
+
+ul.todo-list {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+  width: 90%;
+  border-radius: 5px;
+}
+
+ul.todo-list li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5px 0 5px 0;
+  padding: 0 10px 0 10px;
+  background-color: var(--background2-color);
+  border: 1px solid var(--priority-2-color);
+  border-radius: 5px;
+}
+
+ul.completed-list {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+  width: 90%;
+  border-radius: 5px;
+}
+
+ul.completed-list li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5px 0 5px 0;
+  padding: 0 10px 0 10px;
+  background-color: var(--background2-color);
+  border: 1px solid var(--priority-2-color);
+  border-radius: 5px;
+}
+
+li.todo div.todo-tile {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--priority-2-color);
+  border-radius: 5px;
+  z-index: 1;
+}
+
+ul.todo-list li [view="open"] {
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+ul.todo-list li div.todo-tile:hover {
+  background-color: var(--tertiary-color);
+  cursor: default;
+}
+
+li.todo input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+li.todo input[type="checkbox"]:hover {
+  cursor: pointer;
+}
+
+li.todo div.todo-info {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
+}
+
+li.todo p {
+  display: flex;
+  color: white;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+li p.due-date {
+  margin-right: 10px;
+  width: 60px;
+  border: none;
+}
+
+li p.toggle {
+  display: flex;
+  text-decoration: none;
+}
+
+li div.todo-info p:hover {
+  color: var(--secondary-color);
+}
+
+li.todo div.details {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0 10px 0;
+  margin-top: -3px;
+  margin-left: auto;
+  justify-content: space-between;
+  z-index: 2;
+  border-top: 1px solid var(--tertiary-color);
+}
+
+li.todo div.details[display="hidden"] {
+  display: none;
+}
+
+li.todo div.details:hover {
+  cursor: default;
+}
+
+li.todo div.details input {
+  background-color: var(--background-color);
+  color: white;
+  border: none;
+  margin-left: 5px;
+  margin-right: 10px;
+  padding: 5px;
+}
+
+li.todo div.details select {
+  background-color: var(--background-color);
+  color: white;
+  border: none;
+  margin-right: 10px;
+  padding: 5px;
+}
+
+li.todo div.details select:hover {
+  cursor: pointer;
+}
+
+li.todo button {
+  background-color: var(--background-color);
+  color: white;
+  border: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+li.todo button:hover {
+  cursor: pointer;
+  background-color: var(--tertiary-color);
+}
+
+p.add-todo {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  margin-top: 10px;
+}
+
+p.add-todo:hover {
+  cursor: pointer;
+  color: var(--secondary-color);
+}
+
+input.add-todo-input {
+  display: flex;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+  border: 2px solid var(--tertiary-color);
+  border-radius: 5px;
+  background-color: var(--background2-color);
+  color: white;
+}
