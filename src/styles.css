@@ -195,11 +195,6 @@ li.todo div.todo-tile {
   z-index: 1;
 }
 
-ul.todo-list li [view="open"] {
-  transform: rotate(90deg);
-  transform-origin: center;
-}
-
 ul.todo-list li div.todo-tile:hover {
   background-color: var(--tertiary-color);
   cursor: default;
@@ -235,20 +230,21 @@ li p.due-date {
   border: none;
 }
 
-li p.toggle {
-  display: flex;
-  text-decoration: none;
+li div.todo-info button {
+  background-color: var(--primary-color);
 }
 
-li div.todo-info p:hover {
-  color: var(--secondary-color);
+li div.todo-info button:hover {
+  color: var(--background-color);
+  background-color: var(--secondary-color);
 }
 
 li.todo div.details {
   display: flex;
   align-items: center;
+  height: 80px;
   width: 100%;
-  padding: 10px 0 10px 0;
+  padding: 13px 0 10px 0;
   margin-top: -3px;
   margin-left: auto;
   justify-content: space-between;
@@ -256,21 +252,20 @@ li.todo div.details {
   border-top: 1px solid var(--tertiary-color);
 }
 
-li.todo div.details[display="hidden"] {
-  display: none;
-}
-
 li.todo div.details:hover {
   cursor: default;
 }
 
-li.todo div.details input {
+li.todo div.details textarea {
   background-color: var(--background-color);
+  height: 80%;
+  width: 70%;
   color: white;
   border: none;
   margin-left: 5px;
   margin-right: 10px;
   padding: 5px;
+  resize: none;
 }
 
 li.todo div.details select {

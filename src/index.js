@@ -1,9 +1,22 @@
 import "./styles.css";
 
+// todo - add delete button
+// todo - add edit functionality to text
+// todo - add due date
+// todo - add priority editing
+// todo - add filter by priority
+// todo - add subtasks
+// todo - add projects
+// todo - leverage date-fns for date comparison, formatting, etc.
+// todo - create a function that saves projects and todos to local storage
+// todo - create a function that loads projects and todos from local storage on first load
+// todo - add methods to objects returned from local storage to ensure they function as expected
+
 class todoModel {
-  constructor(text) {
+  constructor(text, description = "") {
     this.text = text;
     this.completed = false;
+    this.description = description;
   }
 }
 
@@ -86,12 +99,32 @@ class todoListView {
       <div class="todo-tile">
         <input type="checkbox" class="todo-status" />
         <p class="title" contenteditable="false">${todo.text}</p>
+        <div class="todo-info">
+          <button class="toggle" state="closed">></button>
+        </div>
+      </div>
+      <div class="details">
+        <textarea type="text" class="description">${todo.description}</textarea>
       </div>
     `;
     const todoStatus = todoItem.querySelector(".todo-status");
     todoStatus.checked = todo.completed;
     todoStatus.addEventListener("change", () => {
       this.toggleTodoCompleted(index);
+    });
+    const dropdownButton = todoItem.querySelector("button.toggle");
+    const details = todoItem.querySelector(".details");
+    details.style.display = "none";
+    dropdownButton.addEventListener("click", () => {
+      if (dropdownButton.getAttribute("state") === "closed") {
+        details.style.display = "block";
+        dropdownButton.setAttribute("state", "open");
+        dropdownButton.style.transform = "rotate(90deg)";
+      } else {
+        details.style.display = "none";
+        dropdownButton.setAttribute("state", "closed");
+        dropdownButton.style.transform = "rotate(0deg)";
+      }
     });
     return todoItem;
   }
@@ -119,8 +152,8 @@ class todoListController {
     this.todoListView = new todoListView(this);
   }
 
-  addTodo(text) {
-    const todo = new todoModel(text);
+  addTodo(text, description) {
+    const todo = new todoModel(text, description);
     this.todoListModel.addTodo(todo);
     this.todoListView.render();
   }
