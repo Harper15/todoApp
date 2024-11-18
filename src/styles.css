@@ -2,7 +2,7 @@
   --primary-color: rgb(0, 63, 95);
   --secondary-color: rgb(23, 122, 171);
   --background-color: rgb(16, 16, 16);
-  --background2-color: rgb(32, 32, 32);
+  --background-2-color: rgb(32, 32, 32);
   --tertiary-color: rgb(64, 64, 64);
   --priority-1-color: rgb(255, 0, 0);
   --priority-2-color: rgb(255, 242, 0);
@@ -30,7 +30,7 @@ div.sidebar {
   height: 100vh;
   width: 20vw;
   padding-top: 20px;
-  background-color: var(--background2-color);
+  background-color: var(--background-2-color);
   border-radius: 5px;
 }
 
@@ -47,7 +47,7 @@ div.sidebar h3 {
   width: 100%;
   padding: 10px 0 10px 20px;
   margin: 0;
-  background-color: var(--background2-color);
+  background-color: var(--background-2-color);
 }
 
 div.sidebar h3.inbox:hover {
@@ -153,13 +153,32 @@ ul.todo-list {
   border-radius: 5px;
 }
 
+input.add-todo-input {
+  display: none;
+  width: 84%;
+  padding: 10px;
+  margin-left: -25px;
+  border: 2px solid var(--tertiary-color);
+  border-radius: 2px;
+  background-color: var(--background-2-color);
+  color: white;
+}
+
 ul.todo-list li {
+  display: flex;
+  flex-direction: row;
+  align-items: top;
+  width: 100%;
+}
+
+ul.todo-list li div.todo {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 5px 0 5px 0;
   padding: 0 10px 0 10px;
-  background-color: var(--background2-color);
+  width: 95%;
+  background-color: var(--background-2-color);
   border: 1px solid var(--priority-2-color);
   border-radius: 5px;
 }
@@ -180,7 +199,7 @@ ul.completed-list li {
   align-items: center;
   margin: 5px 0 5px 0;
   padding: 0 10px 0 10px;
-  background-color: var(--background2-color);
+  background-color: var(--background-2-color);
   border: 1px solid var(--priority-2-color);
   border-radius: 5px;
 }
@@ -237,6 +256,13 @@ li div.todo-info button {
 li div.todo-info button:hover {
   color: var(--background-color);
   background-color: var(--secondary-color);
+}
+
+li button.delete {
+  color: var(--secondary-color);
+  background-color: var(--background-color);
+  margin-top: 15px;
+  margin-left: 5px;
 }
 
 li.todo div.details {
@@ -305,14 +331,4 @@ p.add-todo {
 p.add-todo:hover {
   cursor: pointer;
   color: var(--secondary-color);
-}
-
-input.add-todo-input {
-  display: flex;
-  padding: 10px;
-  margin: 10px 0 10px 0;
-  border: 2px solid var(--tertiary-color);
-  border-radius: 5px;
-  background-color: var(--background2-color);
-  color: white;
 }

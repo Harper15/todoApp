@@ -1,7 +1,5 @@
 import "./styles.css";
 
-// todo - add delete button
-// todo - add edit functionality to text
 // todo - add due date
 // todo - add priority editing
 // todo - add filter by priority
@@ -23,7 +21,7 @@ class todoModel {
 class todoListModel {
   constructor(controller) {
     this.controller = controller;
-    this.todos = [];
+    this.todos = [new todoModel("First todo", "This is the first todo")];
   }
 
   addTodo(todo) {
@@ -34,8 +32,8 @@ class todoListModel {
     return this.todos;
   }
 
-  deleteTodo() {
-    this.todos.pop();
+  deleteTodo(index) {
+    this.todos.splice(index, 1);
   }
 
   updateTodoText(index, text) {
@@ -53,37 +51,54 @@ class todoListView {
     this.todoList = document.querySelector("ul.todo-list");
     this.doneList = document.querySelector("ul.completed-list");
     this.addTodoButton = document.querySelector("p.add-todo");
+    this.addTodoInput = document.querySelector("input.add-todo-input");
     this.addTodoButton.addEventListener("click", () => {
       this.toggleAddTodoInput();
+    });
+    this.addTodoInput.addEventListener("focusout", () => {
+      this.addTodoInput.style.display = "none";
+      this.addTodoButton.style.display = "block";
+    });
+    this.addTodoInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.controller.addTodo(this.addTodoInput.value);
+        this.addTodoInput.style.display = "none";
+        this.addTodoButton.style.display = "block";
+      } else if (e.key === "Escape") {
+        this.addTodoInput.style.display = "none";
+        this.addTodoButton.style.display = "block";
+      }
     });
   }
 
   toggleAddTodoInput() {
     this.addTodoButton.style.display = "none";
-    const addTodoForm = document.createElement("input");
-    addTodoForm.style.display = "block";
-    addTodoForm.setAttribute("type", "text");
-    addTodoForm.setAttribute("placeholder", "Add a todo");
-    addTodoForm.className = "add-todo-input";
-    addTodoForm.addEventListener("focusout", () => {
-      addTodoForm.style.display = "none";
-      this.addTodoButton.style.display = "block";
-    });
-    addTodoForm.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        this.controller.addTodo(addTodoForm.value);
-        addTodoForm.style.display = "none";
-        this.addTodoButton.style.display = "block";
-      } else if (e.key === "Escape") {
-        addTodoForm.style.display = "none";
-        this.addTodoButton.style.display = "block";
-      }
-    });
-    this.todoList.appendChild(addTodoForm);
-    addTodoForm.focus();
+    this.addTodoInput.value = "";
+    this.addTodoInput.style.display = "block";
+    this.addTodoInput.setAttribute("type", "text");
+    this.addTodoInput.setAttribute("placeholder", "Add a todo");
+    this.todoList.insertAdjacentElement("afterend", this.addTodoInput);
+    this.addTodoInput.focus();
   }
 
-  editTodoText(index) {}
+  editTodoText(item, index) {
+    const currentText = item.textContent;
+    item.setAttribute("contenteditable", "true");
+    item.focus();
+    item.addEventListener("focusout", () => {
+      item.innerText = currentText;
+      item.setAttribute("contenteditable", "false");
+    });
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.controller.updateTodoText(index, item.textContent);
+        item.setAttribute("contenteditable", "false");
+      } else if (e.key === "Escape") {
+        item.innerText = currentText;
+        item.setAttribute("contenteditable", "false");
+      }
+    });
+  }
 
   toggleTodoCompleted(index) {
     this.controller.updateTodoCompleted(index);
@@ -96,16 +111,19 @@ class todoListView {
     todoItem.setAttribute("complete", `${todo.completed}`);
     todoItem.style.cursor = "pointer";
     todoItem.innerHTML = `
-      <div class="todo-tile">
-        <input type="checkbox" class="todo-status" />
-        <p class="title" contenteditable="false">${todo.text}</p>
-        <div class="todo-info">
-          <button class="toggle" state="closed">></button>
+      <div class="todo">
+        <div class="todo-tile">
+          <input type="checkbox" class="todo-status" />
+          <p class="title" contenteditable="false">${todo.text}</p>
+          <div class="todo-info">
+            <button class="toggle" state="closed">></button>
+          </div>
+        </div>
+        <div class="details">
+          <textarea type="text" class="description">${todo.description}</textarea>
         </div>
       </div>
-      <div class="details">
-        <textarea type="text" class="description">${todo.description}</textarea>
-      </div>
+      <button class="delete" data-index="${index}">X</button>
     `;
     const todoStatus = todoItem.querySelector(".todo-status");
     todoStatus.checked = todo.completed;
@@ -125,6 +143,14 @@ class todoListView {
         dropdownButton.setAttribute("state", "closed");
         dropdownButton.style.transform = "rotate(0deg)";
       }
+    });
+    const deleteTodoButton = todoItem.querySelector("button.delete");
+    deleteTodoButton.addEventListener("click", () => {
+      this.controller.deleteTodo(deleteTodoButton.getAttribute("data-index"));
+    });
+    const todoTitle = todoItem.querySelector("div.todo p.title");
+    todoTitle.addEventListener("click", () => {
+      this.editTodoText(todoTitle, index);
     });
     return todoItem;
   }
@@ -162,8 +188,8 @@ class todoListController {
     return this.todoListModel.getTodos();
   }
 
-  deleteTodo() {
-    this.todoListModel.deleteTodo();
+  deleteTodo(index) {
+    this.todoListModel.deleteTodo(index);
     this.todoListView.render();
   }
 
@@ -178,4 +204,7 @@ class todoListController {
   }
 }
 
-const controller = new todoListController();
+document.addEventListener("DOMContentLoaded", () => {
+  const controller = new todoListController();
+  controller.todoListView.render();
+});
