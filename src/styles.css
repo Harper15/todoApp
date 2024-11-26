@@ -171,7 +171,7 @@ ul.todo-list li {
   width: 100%;
 }
 
-ul.todo-list li div.todo {
+li div.todo {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -179,7 +179,6 @@ ul.todo-list li div.todo {
   padding: 0 10px 0 10px;
   width: 95%;
   background-color: var(--background-2-color);
-  border: 1px solid var(--priority-2-color);
   border-radius: 5px;
 }
 
@@ -195,13 +194,13 @@ ul.completed-list {
 
 ul.completed-list li {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 5px 0 5px 0;
-  padding: 0 10px 0 10px;
-  background-color: var(--background-2-color);
-  border: 1px solid var(--priority-2-color);
-  border-radius: 5px;
+  flex-direction: row;
+  align-items: top;
+  width: 100%;
+}
+
+li.todo {
+  display: flex;
 }
 
 li.todo div.todo-tile {
@@ -209,7 +208,6 @@ li.todo div.todo-tile {
   align-items: center;
   width: 100%;
   padding: 10px;
-  border: 1px solid var(--priority-2-color);
   border-radius: 5px;
   z-index: 1;
 }
@@ -235,7 +233,7 @@ li.todo div.todo-info {
   margin-left: auto;
 }
 
-li.todo p {
+li.todo p.title {
   display: flex;
   color: white;
   margin: 0;
@@ -244,9 +242,11 @@ li.todo p {
 }
 
 li p.due-date {
+  display: flex;
+  color: white;
+  margin: 0;
+  padding: 0;
   margin-right: 10px;
-  width: 60px;
-  border: none;
 }
 
 li div.todo-info button {
@@ -266,7 +266,7 @@ li button.delete {
 }
 
 li.todo div.details {
-  display: flex;
+  flex-direction: row;
   align-items: center;
   height: 80px;
   width: 100%;
@@ -283,9 +283,9 @@ li.todo div.details:hover {
 }
 
 li.todo div.details textarea {
-  background-color: var(--background-color);
+  background-color: var(--background-2-color);
   height: 80%;
-  width: 70%;
+  width: 80%;
   color: white;
   border: none;
   margin-left: 5px;
@@ -294,16 +294,44 @@ li.todo div.details textarea {
   resize: none;
 }
 
-li.todo div.details select {
+li.todo div.details textarea:hover {
+  cursor: text;
   background-color: var(--background-color);
+}
+
+li.todo div.details div.edit-section {
+  display: flex;
+  flex-direction: column;
+}
+
+li.todo div.details input[type="date"] {
+  background-color: var(--primary-color);
   color: white;
-  border: none;
-  margin-right: 10px;
+  border: 1px solid var(--background-color);
+  border-radius: 5px;
   padding: 5px;
+  margin: 5px;
+}
+
+li.todo div.details input[type="date"]:hover {
+  cursor: pointer;
+  background-color: var(--secondary-color);
+  color: black;
+}
+
+li.todo div.details select {
+  background-color: var(--primary-color);
+  color: white;
+  border: 1px solid var(--background-color);
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
 }
 
 li.todo div.details select:hover {
   cursor: pointer;
+  background-color: var(--secondary-color);
+  color: black;
 }
 
 li.todo button {

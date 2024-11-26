@@ -1,27 +1,31 @@
 import "./styles.css";
+import { format, formatRelative, startOfToday } from "date-fns";
 
-// todo - add due date
-// todo - add priority editing
 // todo - add filter by priority
 // todo - add subtasks
 // todo - add projects
-// todo - leverage date-fns for date comparison, formatting, etc.
 // todo - create a function that saves projects and todos to local storage
 // todo - create a function that loads projects and todos from local storage on first load
 // todo - add methods to objects returned from local storage to ensure they function as expected
 
 class todoModel {
-  constructor(text, description = "") {
+  constructor(text, description = "", priority = 4, dueDate = new Date()) {
     this.text = text;
     this.completed = false;
     this.description = description;
+    this.priority = priority;
+    this.dueDate = format(dueDate, "yyyy-MM-dd");
   }
 }
 
 class todoListModel {
   constructor(controller) {
     this.controller = controller;
-    this.todos = [new todoModel("First todo", "This is the first todo")];
+    this.todos = [
+      new todoModel("First todo", "This is the first todo"),
+      new todoModel("Second todo", "This is the second todo"),
+      new todoModel("Third todo", "This is the third todo"),
+    ];
   }
 
   addTodo(todo) {
@@ -38,6 +42,14 @@ class todoListModel {
 
   updateTodoText(index, text) {
     this.todos[index].text = text;
+  }
+
+  updateTodoDueDate(index, dueDate) {
+    this.todos[index].dueDate = dueDate;
+  }
+
+  updateTodoPriority(index, priority) {
+    this.todos[index].priority = priority;
   }
 
   updateTodoCompleted(index) {
@@ -100,6 +112,48 @@ class todoListView {
     });
   }
 
+  editDueDate(item, index) {
+    const newDueDate = item.value;
+    if (newDueDate === "") {
+      return;
+    } else if (newDueDate === this.controller.getTodos()[index].dueDate) {
+      return;
+    }
+    const newRelativeDueDate = this.getRelativeDueDate(newDueDate);
+    const currentRelativeDueDate =
+      item.parentElement.parentElement.parentElement.querySelector(
+        "p.due-date"
+      );
+    currentRelativeDueDate.innerText = newRelativeDueDate;
+    this.controller.updateTodoDueDate(index, newDueDate);
+  }
+
+  getRelativeDueDate(dueDate) {
+    return formatRelative(dueDate.concat("T00:00:00"), startOfToday()).replace(
+      / at .*/,
+      ""
+    );
+  }
+
+  editPriority(todo, item, index) {
+    const newPriority = item.value;
+    if (newPriority === this.controller.getTodos()[index].priority) {
+      console.log("same priority");
+      return;
+    }
+    this.setPriorityColor(todo, newPriority);
+    this.controller.updateTodoPriority(index, newPriority);
+  }
+
+  setPriorityColor(todo, priority) {
+    todo.setAttribute("priority", priority);
+    const borderColor = `var(--priority-${priority}-color)`;
+    todo.querySelector("div.todo").style.border = `1px solid ${borderColor}`;
+    todo.querySelector(
+      "div.todo-tile"
+    ).style.border = `1px solid ${borderColor}`;
+  }
+
   toggleTodoCompleted(index) {
     this.controller.updateTodoCompleted(index);
   }
@@ -107,20 +161,31 @@ class todoListView {
   createTodoItem(todo, index) {
     const todoItem = document.createElement("li");
     todoItem.className = "todo";
-    todoItem.setAttribute("priority", "4");
+    todoItem.setAttribute("priority", `${todo.priority}`);
     todoItem.setAttribute("complete", `${todo.completed}`);
     todoItem.style.cursor = "pointer";
+    const relativeDueDate = this.getRelativeDueDate(todo.dueDate);
     todoItem.innerHTML = `
-      <div class="todo">
+      <div class="todo" data-index=${index}>
         <div class="todo-tile">
           <input type="checkbox" class="todo-status" />
           <p class="title" contenteditable="false">${todo.text}</p>
           <div class="todo-info">
+            <p class="due-date">${relativeDueDate}</p>
             <button class="toggle" state="closed">></button>
           </div>
         </div>
         <div class="details">
           <textarea type="text" class="description">${todo.description}</textarea>
+          <div class="edit-section">
+            <input type="date" class="due-date" value=${todo.dueDate} />
+            <select class="priority">
+              <option value="1">High</option>
+              <option value="2">Medium</option>
+              <option value="3">Low</option>
+              <option value="4" selected>None</option>
+            </select>
+          </div>
         </div>
       </div>
       <button class="delete" data-index="${index}">X</button>
@@ -135,7 +200,7 @@ class todoListView {
     details.style.display = "none";
     dropdownButton.addEventListener("click", () => {
       if (dropdownButton.getAttribute("state") === "closed") {
-        details.style.display = "block";
+        details.style.display = "flex";
         dropdownButton.setAttribute("state", "open");
         dropdownButton.style.transform = "rotate(90deg)";
       } else {
@@ -151,6 +216,17 @@ class todoListView {
     const todoTitle = todoItem.querySelector("div.todo p.title");
     todoTitle.addEventListener("click", () => {
       this.editTodoText(todoTitle, index);
+    });
+    const todoDueDate = todoItem.querySelector("div.todo input.due-date");
+    todoDueDate.addEventListener("change", () => {
+      this.editDueDate(todoDueDate, index);
+    });
+    this.setPriorityColor(todoItem, todoItem.getAttribute("priority"));
+    const prioritySelect = todoItem.querySelector("select.priority");
+    prioritySelect.value = todo.priority;
+    const todoPriority = todoItem.querySelector("div.todo select.priority");
+    todoPriority.addEventListener("change", () => {
+      this.editPriority(todoItem, todoPriority, index);
     });
     return todoItem;
   }
@@ -195,6 +271,16 @@ class todoListController {
 
   updateTodoText(index, text) {
     this.todoListModel.updateTodoText(index, text);
+    this.todoListView.render();
+  }
+
+  updateTodoDueDate(index, dueDate) {
+    this.todoListModel.updateTodoDueDate(index, dueDate);
+    this.todoListView.render();
+  }
+
+  updateTodoPriority(index, priority) {
+    this.todoListModel.updateTodoPriority(index, priority);
     this.todoListView.render();
   }
 
