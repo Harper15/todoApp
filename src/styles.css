@@ -108,6 +108,7 @@ div.project {
 
 div.project-header {
   display: flex;
+  flex-direction: row;
   height: 8vh;
   width: 100%;
   padding: 20px;
@@ -131,6 +132,43 @@ div.project-info p {
   display: flex;
   margin: 0;
   padding: 0;
+}
+
+div.project-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 20px;
+  margin-left: auto;
+  padding: 20px;
+}
+
+div.project-actions button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 5px;
+}
+
+div.project-actions button:hover {
+  background-color: var(--secondary-color);
+  cursor: pointer;
+}
+
+div.project-actions select.sort-todos {
+  background-color: var(--primary-color);
+  color: white;
+  border: 1px solid var(--background-color);
+  border-radius: 5px;
+  padding: 8px;
+  margin: 5px;
+}
+
+div.project-actions select.sort-todos:hover {
+  background-color: var(--secondary-color);
+  cursor: pointer;
 }
 
 div.content {
@@ -239,6 +277,10 @@ li.todo p.title {
   margin: 0;
   padding: 0;
   cursor: pointer;
+}
+
+li.todo p.title:hover {
+  cursor: text;
 }
 
 li p.due-date {

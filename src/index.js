@@ -1,7 +1,6 @@
 import "./styles.css";
 import { format, formatRelative, startOfToday } from "date-fns";
 
-// todo - add filter by priority
 // todo - add subtasks
 // todo - add projects
 // todo - create a function that saves projects and todos to local storage
@@ -62,29 +61,37 @@ class todoListView {
     this.controller = controller;
     this.todoList = document.querySelector("ul.todo-list");
     this.doneList = document.querySelector("ul.completed-list");
-    this.addTodoButton = document.querySelector("p.add-todo");
+    this.addTodoTextButton = document.querySelector("p.add-todo");
+    this.addTodoButton = document.querySelector("button.add-todo");
     this.addTodoInput = document.querySelector("input.add-todo-input");
+    this.sortTodos = document.querySelector("select.sort-todos");
+    this.addTodoTextButton.addEventListener("click", () => {
+      this.toggleAddTodoInput();
+    });
     this.addTodoButton.addEventListener("click", () => {
       this.toggleAddTodoInput();
     });
     this.addTodoInput.addEventListener("focusout", () => {
       this.addTodoInput.style.display = "none";
-      this.addTodoButton.style.display = "block";
+      this.addTodoTextButton.style.display = "block";
     });
     this.addTodoInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         this.controller.addTodo(this.addTodoInput.value);
         this.addTodoInput.style.display = "none";
-        this.addTodoButton.style.display = "block";
+        this.addTodoTextButton.style.display = "block";
       } else if (e.key === "Escape") {
         this.addTodoInput.style.display = "none";
-        this.addTodoButton.style.display = "block";
+        this.addTodoTextButton.style.display = "block";
       }
+    });
+    this.sortTodos.addEventListener("change", () => {
+      this.sortTodoList(this.sortTodos.value);
     });
   }
 
   toggleAddTodoInput() {
-    this.addTodoButton.style.display = "none";
+    this.addTodoTextButton.style.display = "none";
     this.addTodoInput.value = "";
     this.addTodoInput.style.display = "block";
     this.addTodoInput.setAttribute("type", "text");
@@ -152,6 +159,15 @@ class todoListView {
     todo.querySelector(
       "div.todo-tile"
     ).style.border = `1px solid ${borderColor}`;
+  }
+
+  sortTodoList(sortBy) {
+    const todos = this.controller.getTodos();
+    if (sortBy === "priority") {
+      todos.sort((a, b) => a.priority - b.priority);
+    }
+    this.controller.todoListModel.todos = todos;
+    this.render();
   }
 
   toggleTodoCompleted(index) {
