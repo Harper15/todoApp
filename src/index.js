@@ -211,6 +211,7 @@ class todoListView {
     todoStatus.addEventListener("change", () => {
       this.toggleTodoCompleted(index);
     });
+
     const dropdownButton = todoItem.querySelector("button.toggle");
     const details = todoItem.querySelector(".details");
     details.style.display = "none";
@@ -225,25 +226,32 @@ class todoListView {
         dropdownButton.style.transform = "rotate(0deg)";
       }
     });
+
     const deleteTodoButton = todoItem.querySelector("button.delete");
     deleteTodoButton.addEventListener("click", () => {
       this.controller.deleteTodo(deleteTodoButton.getAttribute("data-index"));
     });
+
     const todoTitle = todoItem.querySelector("div.todo p.title");
     todoTitle.addEventListener("click", () => {
       this.editTodoText(todoTitle, index);
     });
+
     const todoDueDate = todoItem.querySelector("div.todo input.due-date");
     todoDueDate.addEventListener("change", () => {
       this.editDueDate(todoDueDate, index);
     });
+
     this.setPriorityColor(todoItem, todoItem.getAttribute("priority"));
     const prioritySelect = todoItem.querySelector("select.priority");
     prioritySelect.value = todo.priority;
+
     const todoPriority = todoItem.querySelector("div.todo select.priority");
     todoPriority.addEventListener("change", () => {
       this.editPriority(todoItem, todoPriority, index);
+      this.sortTodoList(this.sortTodos.value);
     });
+
     return todoItem;
   }
 
