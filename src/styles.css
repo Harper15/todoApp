@@ -308,9 +308,9 @@ li button.delete {
 }
 
 li.todo div.details {
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  height: 80px;
+  height: auto;
   width: 100%;
   padding: 13px 0 10px 0;
   margin-top: -3px;
@@ -322,6 +322,14 @@ li.todo div.details {
 
 li.todo div.details:hover {
   cursor: default;
+}
+
+li.todo div.detail-settings {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 li.todo div.details textarea {
@@ -346,6 +354,12 @@ li.todo div.details div.edit-section {
   flex-direction: column;
 }
 
+div.details div.other-settings {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 li.todo div.details input[type="date"] {
   background-color: var(--primary-color);
   color: white;
@@ -368,6 +382,7 @@ li.todo div.details select {
   border-radius: 5px;
   padding: 5px;
   margin: 5px;
+  height: 30px;
 }
 
 li.todo div.details select:hover {
@@ -376,7 +391,24 @@ li.todo div.details select:hover {
   color: black;
 }
 
-li.todo button {
+li.todo div.details button {
+  background-color: var(--primary-color);
+  color: white;
+  border: 1px solid var(--background-color);
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  white-space: nowrap;
+  height: 30px;
+}
+
+li.todo div.details button:hover {
+  cursor: pointer;
+  background-color: var(--secondary-color);
+  color: black;
+}
+
+li.todo button.toggle {
   background-color: var(--background-color);
   color: white;
   border: none;
@@ -386,7 +418,22 @@ li.todo button {
   padding: 5px;
 }
 
-li.todo button:hover {
+li.todo button.toggle:hover {
+  cursor: pointer;
+  background-color: var(--tertiary-color);
+}
+
+li.todo button.delete {
+  background-color: var(--background-color);
+  color: white;
+  border: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+li.todo button.delete:hover {
   cursor: pointer;
   background-color: var(--tertiary-color);
 }
@@ -401,4 +448,43 @@ p.add-todo {
 p.add-todo:hover {
   cursor: pointer;
   color: var(--secondary-color);
+}
+
+div.details ul.subtask-list {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+  width: 90%;
+  border-radius: 5px;
+}
+
+div.details ul.subtask-list li {
+  display: flex;
+  flex-direction: column;
+  align-items: top;
+  width: 100%;
+}
+
+ul.subtask-list li div.todo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 5px 0 5px 0;
+  padding: 0 10px 0 10px;
+  width: 95%;
+  background-color: var(--background-2-color);
+  border-radius: 5px;
+}
+
+div.details input.subtask-input {
+  display: none;
+  width: 84%;
+  padding: 10px;
+  margin-left: -25px;
+  border: 2px solid var(--tertiary-color);
+  border-radius: 2px;
+  background-color: var(--background-2-color);
+  color: white;
 }

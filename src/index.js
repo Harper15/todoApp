@@ -1,19 +1,47 @@
 import "./styles.css";
-import { format, formatRelative, startOfToday } from "date-fns";
+import { format, formatRelative, startOfToday, sub } from "date-fns";
 
-// todo - add subtasks
 // todo - add projects
 // todo - create a function that saves projects and todos to local storage
 // todo - create a function that loads projects and todos from local storage on first load
 // todo - add methods to objects returned from local storage to ensure they function as expected
 
+class subtaskModel {
+  constructor(text) {
+    this.text = text;
+    this.completed = false;
+  }
+}
+
 class todoModel {
   constructor(text, description = "", priority = 4, dueDate = new Date()) {
+    this.index = 0;
     this.text = text;
     this.completed = false;
     this.description = description;
     this.priority = priority;
     this.dueDate = format(dueDate, "yyyy-MM-dd");
+    this.subtasks = [];
+  }
+
+  addSubtask(subtask) {
+    this.subtasks.push(subtask);
+  }
+
+  getSubtasks() {
+    return this.subtasks;
+  }
+
+  deleteSubtask(subtaskIndex) {
+    this.subtasks.splice(subtaskIndex, 1);
+  }
+
+  updateSubtaskText(index, text) {
+    this.subtasks[index].text = text;
+  }
+
+  updateSubtaskCompleted(index) {
+    this.subtasks[index].completed = !this.subtasks[index].completed;
   }
 }
 
@@ -56,6 +84,83 @@ class todoListModel {
   }
 }
 
+class subtaskListView {
+  constructor(controller) {
+    this.controller = controller;
+  }
+
+  updateSubtaskCompleted(todo, index) {
+    this.controller.updateSubtaskCompleted(todo, index);
+  }
+
+  createSubtask(todo, subtask, index) {
+    const taskItem = document.createElement("li");
+    taskItem.className = "todo";
+    taskItem.setAttribute("complete", `${subtask.completed}`);
+    taskItem.style.cursor = "pointer";
+    taskItem.innerHTML = `
+      <div class="todo" data-index=${index}>
+        <div class="todo-tile">
+          <input type="checkbox" class="todo-status" />
+          <p class="title" contenteditable="false">${subtask.text}</p>
+        </div>
+        <button class="delete" data-index="${index}">X</button>
+      </div>
+    `;
+
+    const taskStatus = taskItem.querySelector(".todo-status");
+    taskStatus.checked = subtask.completed;
+    taskStatus.addEventListener("change", () => {
+      this.updateSubtaskCompleted(todo, index);
+    });
+
+    const deleteTaskButton = taskItem.querySelector("button.delete");
+    deleteTaskButton.addEventListener("click", () => {
+      this.controller.deleteSubtask(
+        todo,
+        deleteTaskButton.getAttribute("data-index")
+      );
+    });
+
+    const taskTitle = taskItem.querySelector("p.title");
+    const currentText = taskTitle.textContent;
+    taskTitle.addEventListener("click", () => {
+      taskTitle.setAttribute("contenteditable", "true");
+      taskTitle.focus();
+    });
+    taskTitle.addEventListener("focusout", () => {
+      taskTitle.setAttribute("contenteditable", "false");
+      taskTitle.innerText = currentText;
+    });
+    taskTitle.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.controller.updateSubtaskText(todo, index, taskTitle.textContent);
+        taskTitle.setAttribute("contenteditable", "false");
+      } else if (e.key === "Escape") {
+        taskTitle.innerText = currentText;
+        taskTitle.setAttribute("contenteditable", "false");
+      }
+    });
+
+    return taskItem;
+  }
+
+  render(todo) {
+    const allSubtaskLists = document.querySelectorAll("ul.subtask-list");
+    const subtaskList = Array.from(allSubtaskLists).find(
+      (list) => list.getAttribute("data-index") === todo.index.toString()
+    );
+    subtaskList.innerHTML = "";
+    todo.getSubtasks().forEach((subtask, index) => {
+      const taskItem = this.createSubtask(todo, subtask, index);
+      taskItem.style.textDecoration = subtask.completed
+        ? "line-through"
+        : "none";
+      subtaskList.appendChild(taskItem);
+    });
+  }
+}
+
 class todoListView {
   constructor(controller) {
     this.controller = controller;
@@ -66,10 +171,12 @@ class todoListView {
     this.addTodoInput = document.querySelector("input.add-todo-input");
     this.sortTodos = document.querySelector("select.sort-todos");
     this.addTodoTextButton.addEventListener("click", () => {
-      this.toggleAddTodoInput();
+      this.addTodoTextButton.style.display = "none";
+      this.toggleInput(this.addTodoInput, this.todoList);
     });
     this.addTodoButton.addEventListener("click", () => {
-      this.toggleAddTodoInput();
+      this.addTodoTextButton.style.display = "none";
+      this.toggleInput(this.addTodoInput, this.todoList);
     });
     this.addTodoInput.addEventListener("focusout", () => {
       this.addTodoInput.style.display = "none";
@@ -90,14 +197,13 @@ class todoListView {
     });
   }
 
-  toggleAddTodoInput() {
-    this.addTodoTextButton.style.display = "none";
-    this.addTodoInput.value = "";
-    this.addTodoInput.style.display = "block";
-    this.addTodoInput.setAttribute("type", "text");
-    this.addTodoInput.setAttribute("placeholder", "Add a todo");
-    this.todoList.insertAdjacentElement("afterend", this.addTodoInput);
-    this.addTodoInput.focus();
+  toggleInput(input, list) {
+    input.value = "";
+    input.style.display = "block";
+    input.setAttribute("type", "text");
+    input.setAttribute("placeholder", "Add a todo");
+    list.insertAdjacentElement("afterend", input);
+    input.focus();
   }
 
   editTodoText(item, index) {
@@ -175,14 +281,16 @@ class todoListView {
   }
 
   createTodoItem(todo, index) {
+    todo.index = index;
     const todoItem = document.createElement("li");
     todoItem.className = "todo";
+    todoItem.setAttribute("data-index", `${index}`);
     todoItem.setAttribute("priority", `${todo.priority}`);
     todoItem.setAttribute("complete", `${todo.completed}`);
     todoItem.style.cursor = "pointer";
     const relativeDueDate = this.getRelativeDueDate(todo.dueDate);
     todoItem.innerHTML = `
-      <div class="todo" data-index=${index}>
+      <div class="todo">
         <div class="todo-tile">
           <input type="checkbox" class="todo-status" />
           <p class="title" contenteditable="false">${todo.text}</p>
@@ -192,16 +300,24 @@ class todoListView {
           </div>
         </div>
         <div class="details">
-          <textarea type="text" class="description">${todo.description}</textarea>
-          <div class="edit-section">
-            <input type="date" class="due-date" value=${todo.dueDate} />
-            <select class="priority">
-              <option value="1">High</option>
-              <option value="2">Medium</option>
-              <option value="3">Low</option>
-              <option value="4" selected>None</option>
-            </select>
+          <div class="detail-settings">
+            <textarea type="text" class="description">${todo.description}</textarea>
+            <div class="edit-section">
+              <input type="date" class="due-date" value=${todo.dueDate} />
+              <div class="other-settings">
+                <select class="priority">
+                  <option value="1">High</option>
+                  <option value="2">Medium</option>
+                  <option value="3">Low</option>
+                  <option value="4" selected>None</option>
+                </select>
+                <button class="add-subtask">Add subtask</button>
+              </div>
+            </div>
           </div>
+          <ul class="subtask-list" data-index=${index}>
+          </ul>
+          <input type="text" class="subtask-input" placeholder="Add a subtask" />
         </div>
       </div>
       <button class="delete" data-index="${index}">X</button>
@@ -252,6 +368,25 @@ class todoListView {
       this.sortTodoList(this.sortTodos.value);
     });
 
+    const subtaskInput = todoItem.querySelector("input.subtask-input");
+    subtaskInput.style.display = "none";
+    const addSubtaskButton = todoItem.querySelector("button.add-subtask");
+    addSubtaskButton.addEventListener("click", () => {
+      subtaskInput.style.display = "block";
+      this.toggleInput(subtaskInput, todoItem.querySelector("ul.subtask-list"));
+    });
+    subtaskInput.addEventListener("focusout", () => {
+      subtaskInput.style.display = "none";
+    });
+    subtaskInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.controller.addSubtask(todo, subtaskInput.value);
+        subtaskInput.style.display = "none";
+      } else if (e.key === "Escape") {
+        subtaskInput.style.display = "none";
+      }
+    });
+
     return todoItem;
   }
 
@@ -273,8 +408,10 @@ class todoListView {
 
 class todoListController {
   constructor() {
+    this.subtaskModel = new subtaskModel();
     this.todoModel = new todoModel();
     this.todoListModel = new todoListModel(this);
+    this.subtaskListView = new subtaskListView(this);
     this.todoListView = new todoListView(this);
   }
 
@@ -311,6 +448,31 @@ class todoListController {
   updateTodoCompleted(index) {
     this.todoListModel.updateTodoCompleted(index);
     this.todoListView.render();
+  }
+
+  addSubtask(todo, text) {
+    const subtask = new subtaskModel(text);
+    todo.addSubtask(subtask);
+    this.subtaskListView.render(todo);
+  }
+
+  getSubtasks(todo) {
+    return todo.getSubtasks();
+  }
+
+  deleteSubtask(todo, index) {
+    todo.deleteSubtask(index);
+    this.subtaskListView.render(todo);
+  }
+
+  updateSubtaskText(todo, index, text) {
+    todo.updateSubtaskText(index, text);
+    this.subtaskListView.render(todo);
+  }
+
+  updateSubtaskCompleted(todo, index) {
+    todo.updateSubtaskCompleted(index);
+    this.subtaskListView.render(todo);
   }
 }
 
