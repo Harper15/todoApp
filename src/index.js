@@ -1,10 +1,5 @@
 import "./styles.css";
-import { format, formatRelative, startOfToday, sub } from "date-fns";
-
-// todo - add projects
-// todo - create a function that saves projects and todos to local storage
-// todo - create a function that loads projects and todos from local storage on first load
-// todo - add methods to objects returned from local storage to ensure they function as expected
+import { format, formatRelative, startOfToday } from "date-fns";
 
 class subtaskModel {
   constructor(text) {
@@ -24,63 +19,108 @@ class todoModel {
     this.subtasks = [];
   }
 
-  addSubtask(subtask) {
-    this.subtasks.push(subtask);
+  addSubtask(index, subtask) {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    if (!todos[index]) {
+      console.error(`Todo at index ${index} not found`);
+      return;
+    }
+    const todoSubtasks = todos[index].subtasks || [];
+    todoSubtasks.push(subtask);
+    todos[index].subtasks = todoSubtasks;
+    localStorage.setItem("todos", JSON.stringify(todos));
   }
 
-  getSubtasks() {
-    return this.subtasks;
+  getSubtasks(index) {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    if (!todos[index]) {
+      console.error(`Todo at index ${index} not found`);
+      return [];
+    }
+    return todos[index].subtasks || [];
   }
 
-  deleteSubtask(subtaskIndex) {
-    this.subtasks.splice(subtaskIndex, 1);
+  deleteSubtask(index, subtaskIndex) {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    if (!todos[index]) {
+      console.error(`Todo at index ${index} not found`);
+      return;
+    }
+    const todoSubtasks = todos[index].subtasks || [];
+    todoSubtasks.splice(subtaskIndex, 1);
+    todos[index].subtasks = todoSubtasks;
+    localStorage.setItem("todos", JSON.stringify(todos));
   }
 
-  updateSubtaskText(index, text) {
-    this.subtasks[index].text = text;
+  updateSubtaskText(index, subtaskIndex, text) {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    if (!todos[index]) {
+      console.error(`Todo at index ${index} not found`);
+      return;
+    }
+    const todoSubtasks = todos[index].subtasks || [];
+    todoSubtasks[subtaskIndex].text = text;
+    todos[index].subtasks = todoSubtasks;
+    localStorage.setItem("todos", JSON.stringify(todos));
   }
 
-  updateSubtaskCompleted(index) {
-    this.subtasks[index].completed = !this.subtasks[index].completed;
+  updateSubtaskCompleted(index, subtaskIndex) {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    if (!todos[index]) {
+      console.error(`Todo at index ${index} not found`);
+      return;
+    }
+    console.log(index);
+    console.log(todos);
+    console.log(todos[index]);
+    const todoSubtasks = todos[index].subtasks || [];
+    console.log(todoSubtasks);
+    todoSubtasks[subtaskIndex].completed =
+      !todoSubtasks[subtaskIndex].completed;
+    todos[index].subtasks = todoSubtasks;
+    localStorage.setItem("todos", JSON.stringify(todos));
   }
 }
 
 class todoListModel {
   constructor(controller) {
     this.controller = controller;
-    this.todos = [
-      new todoModel("First todo", "This is the first todo"),
-      new todoModel("Second todo", "This is the second todo"),
-      new todoModel("Third todo", "This is the third todo"),
-    ];
+    this.todos = [];
   }
 
   addTodo(todo) {
     this.todos.push(todo);
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   getTodos() {
+    this.todos = JSON.parse(localStorage.getItem("todos"));
     return this.todos;
   }
 
   deleteTodo(index) {
     this.todos.splice(index, 1);
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   updateTodoText(index, text) {
     this.todos[index].text = text;
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   updateTodoDueDate(index, dueDate) {
     this.todos[index].dueDate = dueDate;
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   updateTodoPriority(index, priority) {
     this.todos[index].priority = priority;
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   updateTodoCompleted(index) {
     this.todos[index].completed = !this.todos[index].completed;
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 }
 
@@ -89,11 +129,11 @@ class subtaskListView {
     this.controller = controller;
   }
 
-  updateSubtaskCompleted(todo, index) {
-    this.controller.updateSubtaskCompleted(todo, index);
+  updateSubtaskCompleted(todoIndex, subtaskIndex) {
+    this.controller.updateSubtaskCompleted(todoIndex, subtaskIndex);
   }
 
-  createSubtask(todo, subtask, index) {
+  createSubtask(todoIndex, subtask, index) {
     const taskItem = document.createElement("li");
     taskItem.className = "todo";
     taskItem.setAttribute("complete", `${subtask.completed}`);
@@ -111,13 +151,13 @@ class subtaskListView {
     const taskStatus = taskItem.querySelector(".todo-status");
     taskStatus.checked = subtask.completed;
     taskStatus.addEventListener("change", () => {
-      this.updateSubtaskCompleted(todo, index);
+      this.updateSubtaskCompleted(todoIndex, index);
     });
 
     const deleteTaskButton = taskItem.querySelector("button.delete");
     deleteTaskButton.addEventListener("click", () => {
       this.controller.deleteSubtask(
-        todo,
+        todoIndex,
         deleteTaskButton.getAttribute("data-index")
       );
     });
@@ -134,7 +174,11 @@ class subtaskListView {
     });
     taskTitle.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        this.controller.updateSubtaskText(todo, index, taskTitle.textContent);
+        this.controller.updateSubtaskText(
+          todoIndex,
+          index,
+          taskTitle.textContent
+        );
         taskTitle.setAttribute("contenteditable", "false");
       } else if (e.key === "Escape") {
         taskTitle.innerText = currentText;
@@ -145,14 +189,15 @@ class subtaskListView {
     return taskItem;
   }
 
-  render(todo) {
+  render(todoIndex) {
     const allSubtaskLists = document.querySelectorAll("ul.subtask-list");
     const subtaskList = Array.from(allSubtaskLists).find(
-      (list) => list.getAttribute("data-index") === todo.index.toString()
+      (list) => list.getAttribute("data-index") === todoIndex.toString()
     );
     subtaskList.innerHTML = "";
-    todo.getSubtasks().forEach((subtask, index) => {
-      const taskItem = this.createSubtask(todo, subtask, index);
+    const allSubtasks = this.controller.getSubtasks(todoIndex);
+    allSubtasks.forEach((subtask, index) => {
+      const taskItem = this.createSubtask(todoIndex, subtask, index);
       taskItem.style.textDecoration = subtask.completed
         ? "line-through"
         : "none";
@@ -227,7 +272,7 @@ class todoListView {
 
   editDueDate(item, index) {
     const newDueDate = item.value;
-    if (newDueDate === "") {
+    if (newDueDate === "" || newDueDate === null) {
       return;
     } else if (newDueDate === this.controller.getTodos()[index].dueDate) {
       return;
@@ -235,7 +280,7 @@ class todoListView {
     const newRelativeDueDate = this.getRelativeDueDate(newDueDate);
     const currentRelativeDueDate =
       item.parentElement.parentElement.parentElement.querySelector(
-        "p.due-date"
+        "input.due-date"
       );
     currentRelativeDueDate.innerText = newRelativeDueDate;
     this.controller.updateTodoDueDate(index, newDueDate);
@@ -251,7 +296,6 @@ class todoListView {
   editPriority(todo, item, index) {
     const newPriority = item.value;
     if (newPriority === this.controller.getTodos()[index].priority) {
-      console.log("same priority");
       return;
     }
     this.setPriorityColor(todo, newPriority);
@@ -380,7 +424,7 @@ class todoListView {
     });
     subtaskInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        this.controller.addSubtask(todo, subtaskInput.value);
+        this.controller.addSubtask(todo["index"], subtaskInput.value);
         subtaskInput.style.display = "none";
       } else if (e.key === "Escape") {
         subtaskInput.style.display = "none";
@@ -402,6 +446,7 @@ class todoListView {
       } else {
         this.todoList.appendChild(todoItem);
       }
+      this.controller.subtaskListView.render(index);
     });
   }
 }
@@ -450,33 +495,41 @@ class todoListController {
     this.todoListView.render();
   }
 
-  addSubtask(todo, text) {
+  addSubtask(todoIndex, text) {
     const subtask = new subtaskModel(text);
-    todo.addSubtask(subtask);
-    this.subtaskListView.render(todo);
+    this.todoModel.addSubtask(todoIndex, subtask);
+    this.subtaskListView.render(todoIndex);
   }
 
-  getSubtasks(todo) {
-    return todo.getSubtasks();
+  getSubtasks(index) {
+    return this.todoModel.getSubtasks(index);
   }
 
-  deleteSubtask(todo, index) {
-    todo.deleteSubtask(index);
-    this.subtaskListView.render(todo);
+  deleteSubtask(todoIndex, index) {
+    this.todoModel.deleteSubtask(todoIndex, index);
+    this.subtaskListView.render(todoIndex);
   }
 
-  updateSubtaskText(todo, index, text) {
-    todo.updateSubtaskText(index, text);
-    this.subtaskListView.render(todo);
+  updateSubtaskText(todoIndex, index, text) {
+    this.todoModel.updateSubtaskText(todoIndex, index, text);
+    this.subtaskListView.render(todoIndex);
   }
 
-  updateSubtaskCompleted(todo, index) {
-    todo.updateSubtaskCompleted(index);
-    this.subtaskListView.render(todo);
+  updateSubtaskCompleted(todoIndex, index) {
+    this.todoModel.updateSubtaskCompleted(todoIndex, index);
+    this.subtaskListView.render(todoIndex);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const controller = new todoListController();
+  if (
+    localStorage.getItem("todos") === null ||
+    localStorage.getItem("todos") === "[]"
+  ) {
+    controller.addTodo("First todo", "This is the first todo");
+    controller.addTodo("Second todo", "This is the second todo");
+    controller.addTodo("Third todo", "This is the third todo");
+  }
   controller.todoListView.render();
 });
