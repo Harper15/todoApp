@@ -70,11 +70,7 @@ class todoModel {
       console.error(`Todo at index ${index} not found`);
       return;
     }
-    console.log(index);
-    console.log(todos);
-    console.log(todos[index]);
     const todoSubtasks = todos[index].subtasks || [];
-    console.log(todoSubtasks);
     todoSubtasks[subtaskIndex].completed =
       !todoSubtasks[subtaskIndex].completed;
     todos[index].subtasks = todoSubtasks;
@@ -323,6 +319,13 @@ class todoListView {
     this.render();
   }
 
+  updateTodoCounter() {
+    const todos = this.controller.getTodos();
+    const todoCounter = document.querySelector("p.todo-counter");
+    const totalTodos = todos.length;
+    todoCounter.innerText = `Todos: ${totalTodos}`;
+  }
+
   toggleTodoCompleted(index) {
     this.controller.updateTodoCompleted(index);
   }
@@ -451,6 +454,7 @@ class todoListView {
       }
       this.controller.subtaskListView.render(index);
     });
+    this.updateTodoCounter();
   }
 }
 
@@ -464,8 +468,7 @@ class todoListController {
   }
 
   addTodo(text, description) {
-    const todo = new todoModel(text, description);
-    this.todoListModel.addTodo(todo);
+    this.todoListModel.addTodo(text, description);
     this.todoListView.render();
   }
 
