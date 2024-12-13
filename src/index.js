@@ -88,7 +88,9 @@ class todoListModel {
     this.todos = [];
   }
 
-  addTodo(todo) {
+  addTodo(text) {
+    const todo = new todoModel(text);
+    todo.index = this.todos.length;
     this.todos.push(todo);
     localStorage.setItem("todos", JSON.stringify(this.todos));
   }
@@ -317,6 +319,7 @@ class todoListView {
       todos.sort((a, b) => a.priority - b.priority);
     }
     this.controller.todoListModel.todos = todos;
+    localStorage.setItem("todos", JSON.stringify(todos));
     this.render();
   }
 
